@@ -1,0 +1,12 @@
+TAQWA V22 — Static verification
+
+PASS: JavaScript syntax checked with Node.
+PASS: PWA manifest parses as JSON and contains name, short_name, start_url, scope, standalone display, display override, and 192/512px icons.
+PASS: All nine HTML pages reference the manifest and install-prompt bootstrap.
+PASS: Root-relative assets referenced from HTML exist in the package.
+PASS: Tafsir feature includes Al Quran Cloud as primary and QuranEnc as fallback, per-surah local cache, verse text, search and pagination.
+
+LIMITATIONS
+- Live remote API calls could not be tested from the build environment.
+- Upload the ZIP contents to the Netlify publish root and redeploy before testing installability on a phone.
+- For Android, use browser menu > Install app when offered. For iPhone/iPad, use Safari > Share > Add to Home Screen. A PWA is a standalone web app, not a native APK.

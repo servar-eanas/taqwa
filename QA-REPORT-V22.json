@@ -1,0 +1,36 @@
+{
+  "version": "V22",
+  "status": "STATIC_CHECKS_PASS_LIVE_TEST_REQUIRED",
+  "checks": {
+    "javascript_syntax_checked_with_node": true,
+    "manifest_json_valid": true,
+    "manifest_has_name_short_name_start_url_scope": true,
+    "manifest_display_standalone_with_override": true,
+    "manifest_icons_192_and_512_present": true,
+    "all_nine_html_pages_reference_manifest_and_service_worker_bootstrap": true,
+    "local_root_resources_present": true,
+    "tafsir_has_primary_and_fallback_api_sources": true,
+    "tafsir_has_per_surah_cache_and_pagination": true
+  },
+  "tafsir_sources": [
+    "Al Quran Cloud: /v1/surah/{number}/ar.muyassar",
+    "QuranEnc: /api/v1/translation/sura/arabic_moyassar/{number}"
+  ],
+  "pwa_notes": [
+    "The package includes PWA files but does not publish them to Netlify automatically.",
+    "PWA installation depends on HTTPS, browser support, browser installability checks, and the deployed manifest/service worker being accessible.",
+    "iOS uses Add to Home Screen from Safari; Android Chrome/Edge should offer Install app when installable.",
+    "An installed PWA remains web technology; it is not an Android APK or native iOS app."
+  ],
+  "limitations": [
+    "Live API calls could not be reached from the build environment, so remote tafsir providers were not live-tested here.",
+    "The resulting ZIP must be uploaded to the root of the Netlify site and redeployed before phone testing."
+  ],
+  "content_attribution": {
+    "tafsir": "التفسير الميسر — مجمع الملك فهد لطباعة المصحف الشريف",
+    "api_documentation": [
+      "https://alquran.cloud/api",
+      "https://quranenc.com/ar/home/api/"
+    ]
+  }
+}

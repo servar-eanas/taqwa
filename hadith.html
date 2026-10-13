@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<script>window.addEventListener('beforeinstallprompt',function(event){event.preventDefault();window.__TAQWA_INSTALL_PROMPT=event;window.dispatchEvent(new Event('taqwa-install-prompt-ready'));});</script>
+<base href="/">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#18382f"><meta name="application-name" content="تقوى"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="تقوى"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><link rel="apple-touch-icon" href="/icon-192.png">
+<title>الأحاديث النبوية | تقوى</title><link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="ambient"></div>
+<header class="topbar"><div class="container nav-wrap">
+<a class="brand" href="/index.html" data-route="home"><img src="/logo.webp" alt="تقوى"></a>
+<button id="menuBtn" class="icon-btn menu-btn" aria-label="فتح القائمة">☰</button>
+<nav id="mainNav" class="main-nav">
+<a href="/index.html" data-route="home">الرئيسية</a><a href="/quran.html" data-route="quran">القرآن</a><a href="/quran-audio.html" data-route="audio">القرآن الصوتي</a><a href="/tafsir.html" data-route="tafsir">التفسير</a><a href="/hadith.html" data-route="hadith">الأحاديث</a><a href="/azkar.html" data-route="azkar">الأذكار والأدعية</a><a href="/sunan.html" data-route="sunan">السنن</a><a href="/prayer.html" data-route="prayer">مواقيت الصلاة</a>
+</nav>
+<button id="installBtn" class="install-btn">تنزيل التطبيق</button>
+</div></header>
+<main id="appMain"></main>
+<footer class="footer"><div class="container footer-grid"><div><div class="footer-brand">تقوى <span>TAQWA</span></div><p>نسأل الله أن يجعل هذا العمل نافعًا، خالصًا، ومباركًا.</p></div><div><b>روابط</b><a href="/app.html" data-route="app">عن التطبيق</a><a href="/quran.html">القرآن</a><a href="/hadith.html">الأحاديث</a><a href="/prayer.html">مواقيت الصلاة</a></div><div><b>المصادر</b><span>النص القرآني المحلي + Al Quran Cloud / QuranEnc للتفسير الميسر + AlAdhan للمواقيت + مصادر التلاوات المذكورة داخل المشغل.</span></div></div><div class="footer-bottom">© <span id="year"></span> تقوى — جميع الحقوق محفوظة <span class="build-version">V22</span></div></footer>
+<div id="globalAudioDock" class="audio-dock collapsed" aria-live="polite">
+  <button class="dock-mini" id="dockMini" title="فتح مشغل القرآن"><span class="mini-quran">▥</span><span id="dockMiniTitle">القرآن الصوتي</span><span id="dockMiniPlay">▶</span></button>
+  <div class="dock-panel">
+   <button class="dock-close" id="dockCollapse">−</button>
+   <div class="dock-head"><img id="dockPhoto" class="reciter-photo" src="/quran-icon.svg" alt="مصحف"><div><div id="dockSurah" class="dock-surah">سورة الفاتحة</div><div id="dockReciter" class="dock-reciter">محمد اللحيدان</div></div></div>
+   <div class="dock-progress"><span id="dockCurrent">00:00</span><input id="dockSeek" type="range" min="0" max="1000" step="1" value="0"><span id="dockDuration">00:00</span></div>
+   <div class="dock-controls"><button id="dockPrev">⏮</button><button id="dockPlay" class="dock-main">▶</button><button id="dockNext">⏭</button><button id="dockMute">🔊</button></div>
+  </div>
+</div>
+<button id="tasbihFab" class="float-tool tasbih-fab" title="المسبحة">◉ <span>المسبحة</span></button>
+<div id="tasbihModal" class="modal"><div class="modal-box glass"><div class="modal-head"><h3>المسبحة الإلكترونية</h3><button id="tasbihClose" class="icon-btn">×</button></div><div class="tasbih-count" id="tasbihCount">0</div><button id="tasbihTap" class="tasbih-tap">تسبيح</button><div class="tasbih-row"><button id="tasbihReset" class="btn ghost">تصفير</button><select id="tasbihTarget"><option value="33">33</option><option value="100">100</option><option value="0">بدون هدف</option></select></div><p class="small-note">عند فتح المسبحة يتوقف القرآن تلقائيًا.</p></div></div>
+<div id="installModal" class="modal"><div class="modal-box glass"><div class="modal-head"><h3>تثبيت تقوى</h3><button id="installClose" class="icon-btn">×</button></div><div id="installBody"></div></div></div>
+<div id="permissionGate" class="permission-gate hidden"></div><div id="toast" class="toast"></div>
+<audio id="globalAudio" preload="none" playsinline></audio>
+<script src="/content.js"></script><script src="/quran-data.js"></script><script src="/locations.js"></script><script src="/app.js"></script>
+</body></html>
