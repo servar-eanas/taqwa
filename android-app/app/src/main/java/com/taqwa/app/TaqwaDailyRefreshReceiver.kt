@@ -26,7 +26,7 @@ class TaqwaDailyRefreshReceiver : BroadcastReceiver() {
     val events=JSONArray(); val now=System.currentTimeMillis()
     val labels=linkedMapOf("Fajr" to "الفجر","Dhuhr" to "الظهر","Asr" to "العصر","Maghrib" to "المغرب","Isha" to "العشاء")
     for(offset in 0..1) {
-     val date=LocalDate.now(zone).plusDays(offset)
+     val date=LocalDate.now(zone).plusDays(offset.toLong())
      val dateText=date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
      val timings=fetchTimings(dateText,lat,lon,method,zoneText)
      for((key,label) in labels) {

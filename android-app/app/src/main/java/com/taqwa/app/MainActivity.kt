@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
   webView.addJavascriptInterface(PrayerBridge(this), "TaqwaAndroid")
   webView.webViewClient = object : WebViewClientCompat() {
    override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest) = loader.shouldInterceptRequest(request.url)
-   override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest): Boolean {
+   override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
     val uri=request.url
     if(uri.host=="appassets.androidplatform.net") return false
     if(uri.scheme=="https" || uri.scheme=="http") { startActivity(Intent(Intent.ACTION_VIEW,uri)); return true }
@@ -93,7 +93,7 @@ class MainActivity : ComponentActivity() {
   }
  }
 
- override fun onRequestPermissionsResult(requestCode:Int,permissions:Array<out String>,grantResults:IntArray) {
+ override fun onRequestPermissionsResult(requestCode:Int,permissions:Array<String>,grantResults:IntArray) {
   super.onRequestPermissionsResult(requestCode,permissions,grantResults)
   if(requestCode==permissionRequest) { geoCallback?.invoke(geoOrigin,hasLocationPermission(),false); geoCallback=null; geoOrigin=null }
  }
