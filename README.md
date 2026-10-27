@@ -19,3 +19,11 @@
 - تحفظ آخر تفاسير تم تحميلها محليًا، وتحاول عرض النسخة المحفوظة إذا تعذر الاتصال.
 - تحسين manifest وإضافة التقاط مبكر لحدث تثبيت PWA وإرشادات منفصلة لأندرويد وiOS والكمبيوتر.
 - يجب رفع محتويات هذا الأرشيف إلى جذر موقع Netlify ثم إعادة النشر. لا يمكن تحويل موقع الويب إلى APK أصلي بمجرد هذه الملفات؛ التثبيت هنا PWA مستقل عند استيفاء شروط المتصفح.
+
+
+## V23 — Native Android app
+- Fixed the tafsir page so the selected surah loads automatically on first open and when the surah changes.
+- Added `android-app/` with local prayer alarms, a background adhan playback service, reboot rescheduling, and a GitHub Actions build workflow.
+- Test the debug APK before release. The CI release AAB is unsigned and must be signed with the developer's private key.
+- Background adhan needs internet at prayer time. Force-stopping the app in Android settings can stop future alarms.
+- See `README-ANDROID.md` for build and Play Store instructions.

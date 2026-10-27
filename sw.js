@@ -1,4 +1,4 @@
-const CACHE='taqwa-v22-tafsir-pwa-cache';
+const CACHE='taqwa-v23-native-adhan-cache';
 const CORE=['/','/index.html','/quran.html','/quran-audio.html','/tafsir.html','/hadith.html','/azkar.html','/sunan.html','/prayer.html','/app.html','/style.css','/app.js','/content.js','/quran-data.js','/locations.js','/logo.webp','/icon.svg','/icon-192.png','/icon-512.png','/quran-icon.svg','/manifest.webmanifest'];
 self.addEventListener('install',e=>e.waitUntil((async()=>{const c=await caches.open(CACHE);await Promise.allSettled(CORE.map(async u=>{const r=await fetch(u,{cache:'reload'});if(r.ok)await c.put(u,r)}));await self.skipWaiting()})()));
 self.addEventListener('activate',e=>e.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(k=>k.startsWith('taqwa-')&&k!==CACHE).map(k=>caches.delete(k)));await self.clients.claim()})()));
