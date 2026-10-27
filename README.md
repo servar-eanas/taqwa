@@ -21,7 +21,7 @@
 - يجب رفع محتويات هذا الأرشيف إلى جذر موقع Netlify ثم إعادة النشر. لا يمكن تحويل موقع الويب إلى APK أصلي بمجرد هذه الملفات؛ التثبيت هنا PWA مستقل عند استيفاء شروط المتصفح.
 
 
-## V23 — Native Android app
+## V23 — Native Android app (Android 16 / API 36 target)
 - Fixed the tafsir page so the selected surah loads automatically on first open and when the surah changes.
 - Added `android-app/` with local prayer alarms, a background adhan playback service, reboot rescheduling, and a GitHub Actions build workflow.
 - Test the debug APK before release. The CI release AAB is unsigned and must be signed with the developer's private key.
