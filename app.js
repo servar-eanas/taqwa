@@ -503,7 +503,7 @@ function zonedWallTimeToMs(dateText,hm,tz){
 }
 function syncNativeAdhan(loc,timings,tomorrowTimings=null){
   const bridge=window.TaqwaAndroid;
-  if(!bridge||typeof bridge.schedulePrayerTimes!=='function')return;
+  if(!bridge||typeof bridge.schedulePrayerTimes!=='function'||!tomorrowTimings)return;
   try{
     const tz=loc.timeZone||COUNTRY_TIMEZONES[loc.country]||'Asia/Amman';
     const names={Fajr:'الفجر',Dhuhr:'الظهر',Asr:'العصر',Maghrib:'المغرب',Isha:'العشاء'};
@@ -517,7 +517,7 @@ function syncNativeAdhan(loc,timings,tomorrowTimings=null){
         if(triggerAtMillis>Date.now()+5000)events.push({id:`${date}:${key}`,key,label,triggerAtMillis});
       });
     });
-    bridge.schedulePrayerTimes(JSON.stringify({location:String(loc.city||loc.nearestCity||''),events}));
+    bridge.schedulePrayerTimes(JSON.stringify({location:String(loc.city||loc.nearestCity||''),latitude:Number(loc.lat),longitude:Number(loc.lon),timeZone:tz,method:methodFor(loc.country),country:loc.country,events}));
   }catch(error){console.warn('Native Adhan scheduling bridge unavailable:',error)}
 }
 function scheduleAdhan(loc,timings,tomorrowTimings=null){
