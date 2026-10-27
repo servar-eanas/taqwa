@@ -248,7 +248,7 @@ function initList(type){
   const draw=()=>{const q=search.value.trim().toLowerCase(),c=cat.value;const f=data.filter(x=>(!q||JSON.stringify(x).toLowerCase().includes(q))&&(!c||x.category===c));count.textContent=`${f.length} ${type==='hadith'?'حديث':'سنة'}`;const max=Math.max(1,Math.ceil(f.length/per));pg=Math.min(pg,max);const sl=f.slice((pg-1)*per,pg*per);grid.innerHTML=sl.map(x=>`<article class="content-card"><span class="tag">${x.category||'عام'}</span><h3>${x.title||''}</h3><p class="${type==='hadith'?'arabic':''}">${type==='hadith'?x.text:x.description}</p><footer>${x.source||''}</footer></article>`).join('')||'<div class="loading">لا توجد نتائج.</div>';pages.innerHTML=Array.from({length:max},(_,i)=>`<button type="button" class="page-btn ${i+1===pg?'active':''}" data-p="${i+1}">${i+1}</button>`).join('')};search.oninput=()=>{pg=1;draw()};cat.onchange=()=>{pg=1;draw()};pages.onclick=e=>{const b=e.target.closest('[data-p]');if(b){pg=+b.dataset.p;draw()}};draw();
 }
 async function fetchJson(url,opts={}){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),8500);try{const r=await fetch(url,{...opts,signal:controller.signal});if(!r.ok)throw new Error(`HTTP ${r.status}`);return await r.json()}finally{clearTimeout(timer)}}
-const TAFSIR_CACHE_PREFIX='taqwaTafsirV22_';
+const TAFSIR_CACHE_PREFIX='taqwaTafsirV23_';
 function escapeHTML(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
 function readTafsirCache(id){try{const raw=localStorage.getItem(TAFSIR_CACHE_PREFIX+id);if(!raw)return null;const data=JSON.parse(raw);return Array.isArray(data.entries)&&data.entries.length?data:null}catch{return null}}
 function writeTafsirCache(id,data){const key=TAFSIR_CACHE_PREFIX+id;const packed=JSON.stringify({...data,savedAt:Date.now()});try{localStorage.setItem(key,packed);return}catch{};try{for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k&&k.startsWith(TAFSIR_CACHE_PREFIX)&&k!==key)localStorage.removeItem(k)}localStorage.setItem(key,packed)}catch{}}
@@ -258,7 +258,7 @@ function tafsirErrorHTML(id){return `<div class="tafsir-error"><p>تعذر جل�
 async function initTafsir(){const s=$('#tSurah'),load=$('#tLoad'),grid=$('#tGrid'),search=$('#tSearch'),pages=$('#tPages'),status=$('#tStatus'),count=$('#tCount');if(!s||!load||!grid)return;s.innerHTML=NAMES.map((n,i)=>`<option value="${i+1}">${i+1} — ${n}</option>`).join('');let entries=[],page=1,sourceName='',loading=false;const pageSize=20;
   const draw=()=>{const query=(search?.value||'').trim().toLocaleLowerCase('ar');const filtered=entries.filter(x=>{if(!query)return true;const verse=Q[+s.value-1]?.[x.aya-1]||'';return String(x.aya).includes(query)||verse.toLocaleLowerCase('ar').includes(query)||x.translation.toLocaleLowerCase('ar').includes(query)});const max=Math.max(1,Math.ceil(filtered.length/pageSize));page=Math.min(Math.max(1,page),max);const shown=filtered.slice((page-1)*pageSize,page*pageSize);count.textContent=entries.length?`عدد الآيات: ${entries.length} • النتائج: ${filtered.length} • الصفحة ${page} من ${max}`:'';grid.innerHTML=shown.map(x=>{const verse=String(Q[+s.value-1]?.[x.aya-1]||'').replace(/^\\basmalah\s*/,'');return `<article class="content-card tafsir-card"><span class="tag">الآية ${x.aya} · سورة ${escapeHTML(NAMES[+s.value-1])}</span>${verse?`<div class="tafsir-verse">﴿ ${escapeHTML(verse)} ﴾</div>`:''}<p class="tafsir-meaning">${escapeHTML(x.translation)}</p>${x.footnotes?`<details class="tafsir-footnotes"><summary>الحواشي</summary><p>${escapeHTML(x.footnotes)}</p></details>`:''}</article>`}).join('')||'<div class="loading">لا توجد نتائج مطابقة للبحث.</div>';pages.innerHTML=max>1?`<button type="button" class="page-btn" data-p="${Math.max(1,page-1)}" ${page===1?'disabled':''}>السابق</button>${Array.from({length:max},(_,i)=>`<button type="button" class="page-btn ${i+1===page?'active':''}" data-p="${i+1}" aria-label="الصفحة ${i+1}" ${i+1===page?'aria-current="page"':''}>${i+1}</button>`).join('')}<button type="button" class="page-btn" data-p="${Math.min(max,page+1)}" ${page===max?'disabled':''}>التالي</button>`:''};
   const loadSurah=async()=>{const id=+s.value;page=1;if(search)search.value='';const cached=readTafsirCache(id);entries=cached?.entries||[];sourceName=cached?.source||'';draw();if(status)status.textContent=cached?`تُعرض نسخة محفوظة من التفسير${sourceName?` (${sourceName})`:''}، جارٍ محاولة تحديثها…`:'جارٍ تحميل التفسير…';if(!cached)grid.innerHTML='<div class="loading">جارٍ تحميل التفسير…</div>';loading=true;load.disabled=true;load.textContent='جارٍ التحميل…';try{const fresh=await fetchSurahTafsir(id);entries=fresh.entries;sourceName=fresh.source;writeTafsirCache(id,{entries,source:sourceName});draw();if(status)status.textContent=`تم تحميل التفسير من ${sourceName}. يمكنك البحث والتنقل بين الصفحات.`}catch(err){if(cached){if(status)status.textContent='تعذر تحديث النسخة المحفوظة؛ يمكنك متابعة القراءة دون اتصال.'}else{if(status)status.textContent='لم نتمكن من الاتصال بمصادر التفسير.';grid.innerHTML=tafsirErrorHTML(id);const retry=$('#tRetry');if(retry)retry.onclick=loadSurah}}finally{loading=false;load.disabled=false;load.textContent='عرض التفسير'}};
-  load.onclick=loadSurah;if(search)search.oninput=()=>{page=1;draw()};pages.onclick=e=>{const b=e.target.closest('[data-p]');if(b&&!b.disabled){page=+b.dataset.p;draw();grid.scrollIntoView({behavior:'smooth',block:'start'})}};}
+  load.onclick=loadSurah;s.onchange=()=>{page=1;loadSurah()};if(search)search.oninput=()=>{page=1;draw()};pages.onclick=e=>{const b=e.target.closest('[data-p]');if(b&&!b.disabled){page=+b.dataset.p;draw();grid.scrollIntoView({behavior:'smooth',block:'start'})}};loadSurah();}
 
 const COUNTRY_TIMEZONES={jordan:'Asia/Amman',saudi:'Asia/Riyadh',egypt:'Africa/Cairo'};
 function normalizeLocation(loc){
@@ -287,7 +287,8 @@ function normalizeLocation(loc){
 function getSavedLoc(){try{const raw=JSON.parse(localStorage.getItem('taqwaLocation')||'null');return raw?normalizeLocation(raw):null}catch{return null}}
 function defaultLoc(){const r=window.TAQWA_LOCATIONS.jordan.regions.amman.cities[0];return{country:'jordan',region:'amman',cityIndex:0,city:r.name,lat:r.lat,lon:r.lon,label:'الأردن',regionName:'العاصمة عمّان',timeZone:'Asia/Amman'}}
 function locationFor(country,region,index=0){const reg=window.TAQWA_LOCATIONS[country].regions[region];const city=reg.cities[index]||reg.cities[0];const tz=COUNTRY_TIMEZONES[country]||'Asia/Amman';return{country,region,cityIndex:Math.max(0,Math.min(reg.cities.length-1,index)),city:city.name,lat:city.lat,lon:city.lon,label:window.TAQWA_LOCATIONS[country].label,regionName:reg.name,timeZone:tz}}
-function dateForTZ(tz){const parts=new Intl.DateTimeFormat('en-GB',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const m=Object.fromEntries(parts.map(x=>[x.type,x.value]));return`${m.day}-${m.month}-${m.year}`}
+function dateForTZOffset(tz,offset=0){const parts=new Intl.DateTimeFormat('en-GB',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const m=Object.fromEntries(parts.map(x=>[x.type,x.value]));const d=new Date(Date.UTC(+m.year,+m.month-1,+m.day+(Number(offset)||0)));return`${String(d.getUTCDate()).padStart(2,'0')}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${d.getUTCFullYear()}`}
+function dateForTZ(tz){return dateForTZOffset(tz,0)}
 function methodFor(country){return({jordan:23,saudi:4,egypt:5})[country]||23}
 // API versions can return either HH:mm (with an offset suffix) or ISO 8601.
 // Slicing the first five characters of ISO timestamps displays "2026-" instead of the time.
@@ -308,8 +309,8 @@ function normalizeTimings(timings){
   }
   return out;
 }
-async function fetchPrayer(inputLoc){
-  const loc=normalizeLocation(inputLoc); const date=dateForTZ(loc.timeZone); const method=methodFor(loc.country);
+async function fetchPrayer(inputLoc,dateOverride=null){
+  const loc=normalizeLocation(inputLoc); const date=dateOverride||dateForTZ(loc.timeZone); const method=methodFor(loc.country);
   // Explicit location timezone avoids the API falling back to a server timezone.
   // Time values are normalized before rendering/scheduling to handle ISO responses too.
   const u=`https://api.aladhan.com/v1/timings/${date}?latitude=${encodeURIComponent(loc.lat)}&longitude=${encodeURIComponent(loc.lon)}&method=${method}&school=0&timezonestring=${encodeURIComponent(loc.timeZone)}&iso8601=true`;
@@ -318,9 +319,9 @@ async function fetchPrayer(inputLoc){
   if(apiTz&&apiTz!==loc.timeZone)console.warn('Prayer API timezone differs from selected city:',apiTz,loc.timeZone);
   return{timings,raw:j,date,loc,method};
 }
-function prayerCacheKey(loc){const n=normalizeLocation(loc);return`taqwaPrayerV21:${n.country}:${n.region}:${n.cityIndex}:${dateForTZ(n.timeZone)}`}
-function loadCachedPrayer(loc){try{const v=JSON.parse(localStorage.getItem(prayerCacheKey(loc))||'null');if(v?.timings)return normalizeTimings(v.timings)}catch{}return null}
-function saveCachedPrayer(loc,timings){try{localStorage.setItem(prayerCacheKey(loc),JSON.stringify({timings:normalizeTimings(timings),savedAt:Date.now(),version:21}))}catch{}}
+function prayerCacheKey(loc,date=dateForTZ(normalizeLocation(loc).timeZone)){const n=normalizeLocation(loc);return`taqwaPrayerV23:${n.country}:${n.region}:${n.cityIndex}:${date}`}
+function loadCachedPrayer(loc,date=dateForTZ(normalizeLocation(loc).timeZone)){try{const v=JSON.parse(localStorage.getItem(prayerCacheKey(loc,date))||'null');if(v?.timings)return normalizeTimings(v.timings)}catch{}return null}
+function saveCachedPrayer(loc,timings,date=dateForTZ(normalizeLocation(loc).timeZone)){try{localStorage.setItem(prayerCacheKey(loc,date),JSON.stringify({timings:normalizeTimings(timings),savedAt:Date.now(),version:23}))}catch{}}
 function formatCityLabel(loc){return loc.locationMode==='gps'?`${loc.label} · ${loc.regionName} · الموقع الحالي (الأقرب: ${loc.nearestCity||"مدينة قريبة"})`:`${loc.label} · ${loc.regionName} · ${loc.city}`}
 function renderPrayerBox(loc,timings,target,offline=false){
   const b=$(target); if(!b)return;
@@ -330,7 +331,7 @@ function renderPrayerBox(loc,timings,target,offline=false){
   <div class="prayer-grid">${arr.map(([k,n])=>`<div class="prayer-item"><span>${n}</span><b>${normalizePrayerTime(timings[k])||'—'}</b></div>`).join('')}</div>
   <section class="adhan-audio-settings" aria-label="إعدادات صوت الأذان"><div class="adhan-setting-head"><div><b>صوت الأذان</b><small id="adhanSoundStatus">${enabled?'مفعّل — اضغط تجربة للتأكد من الصوت':'غير مفعّل بعد'}</small></div><span class="adhan-sound-icon">♫</span></div><div class="adhan-setting-actions"><button type="button" class="btn primary" id="enableAdhanSound">${enabled?'إعادة تفعيل الصوت':'تفعيل صوت الأذان'}</button><button type="button" class="btn ghost" id="testAdhanSound">تجربة الأذان</button><button type="button" class="btn ghost" id="stopAdhanSound">إيقاف الصوت</button></div><p class="adhan-help">اضغط «تفعيل صوت الأذان» مرة واحدة واسمح بالصوت من جهازك. سيحاول الموقع تشغيله عند الوقت المحدد ما دام الموقع يعمل. عند إغلاق المتصفح بالكامل لا يمكن ضمان تشغيل الصوت من موقع ويب.</p><div class="adhan-credit">مصدر الصوت: Adhan Recordings from Doha, Qatar — Public Domain Mark 1.0.</div></section>`;
 }
-async function loadPrayer(loc,target){const b=$(target);if(!b)return;b.innerHTML='<div class="loading">جاري جلب مواقيت الصلاة…</div>';try{const res=await fetchPrayer(loc);saveCachedPrayer(loc,res.timings);state.prayer={loc,timings:res.timings};renderPrayerBox(loc,res.timings,target,false);scheduleAdhan(loc,res.timings)}catch{const cached=loadCachedPrayer(loc);if(cached){state.prayer={loc,timings:cached};renderPrayerBox(loc,cached,target,true);scheduleAdhan(loc,cached)}else{b.innerHTML='<div class="loading">لم نتمكن من جلب المواقيت. افتح الإنترنت ثم اضغط تحديث.</div>'}}}
+async function loadPrayer(loc,target){const b=$(target);if(!b)return;b.innerHTML='<div class="loading">جاري جلب مواقيت الصلاة…</div>';try{const res=await fetchPrayer(loc);saveCachedPrayer(loc,res.timings,res.date);state.prayer={loc:res.loc||loc,timings:res.timings};renderPrayerBox(res.loc||loc,res.timings,target,false);let tomorrow=null;try{tomorrow=await fetchPrayer(loc,dateForTZOffset(res.loc?.timeZone||loc.timeZone,1));if(tomorrow)saveCachedPrayer(loc,tomorrow.timings,tomorrow.date)}catch(error){console.warn('Tomorrow prayer times unavailable:',error)}scheduleAdhan(res.loc||loc,res.timings,tomorrow?.timings||null)}catch(error){const tz=loc.timeZone||'Asia/Amman',cached=loadCachedPrayer(loc,dateForTZ(tz)),tomorrow=loadCachedPrayer(loc,dateForTZOffset(tz,1));if(cached){state.prayer={loc,timings:cached};renderPrayerBox(loc,cached,target,true);scheduleAdhan(loc,cached,tomorrow)}else{b.innerHTML='<div class="loading">لم نتمكن من جلب المواقيت. افتح الإنترنت ثم اضغط تحديث.</div>'}}}
 function fillLocations(saved){
   const c=$('#pCountry'),r=$('#pRegion'),ci=$('#pCity'); if(!c||!r||!ci)return;
   const all=window.TAQWA_LOCATIONS||{};
@@ -500,7 +501,27 @@ function zonedWallTimeToMs(dateText,hm,tz){
   }
   return guess;
 }
-function scheduleAdhan(loc,timings){
+function syncNativeAdhan(loc,timings,tomorrowTimings=null){
+  const bridge=window.TaqwaAndroid;
+  if(!bridge||typeof bridge.schedulePrayerTimes!=='function')return;
+  try{
+    const tz=loc.timeZone||COUNTRY_TIMEZONES[loc.country]||'Asia/Amman';
+    const names={Fajr:'الفجر',Dhuhr:'الظهر',Asr:'العصر',Maghrib:'المغرب',Isha:'العشاء'};
+    const events=[];
+    [[0,timings],[1,tomorrowTimings]].forEach(([offset,dayTimings])=>{
+      if(!dayTimings)return;
+      const date=dateForTZOffset(tz,offset);
+      Object.entries(names).forEach(([key,label])=>{
+        const hm=normalizePrayerTime(dayTimings[key]);if(!hm)return;
+        const triggerAtMillis=zonedWallTimeToMs(date,hm,tz);
+        if(triggerAtMillis>Date.now()+5000)events.push({id:`${date}:${key}`,key,label,triggerAtMillis});
+      });
+    });
+    bridge.schedulePrayerTimes(JSON.stringify({location:String(loc.city||loc.nearestCity||''),events}));
+  }catch(error){console.warn('Native Adhan scheduling bridge unavailable:',error)}
+}
+function scheduleAdhan(loc,timings,tomorrowTimings=null){
+  syncNativeAdhan(loc,timings,tomorrowTimings);
   adhanTimers.forEach(id=>clearTimeout(id));adhanTimers=[];
   const names={Fajr:'الفجر',Dhuhr:'الظهر',Asr:'العصر',Maghrib:'المغرب',Isha:'العشاء'};
   const tz=loc.timeZone||({jordan:'Asia/Amman',saudi:'Asia/Riyadh',egypt:'Africa/Cairo'}[loc.country]||'Asia/Amman');
@@ -524,8 +545,12 @@ function scheduleAdhan(loc,timings){
 }
 async function refreshPrayerSchedule(){
   const loc=normalizeLocation(getSavedLoc()||defaultLoc());
-  try{const res=await fetchPrayer(loc);saveCachedPrayer(loc,res.timings);scheduleAdhan(res.loc||loc,res.timings)}
-  catch{const cached=loadCachedPrayer(loc);if(cached)scheduleAdhan(loc,cached)}
+  try{
+    const res=await fetchPrayer(loc);saveCachedPrayer(loc,res.timings,res.date);
+    let tomorrow=null;
+    try{tomorrow=await fetchPrayer(loc,dateForTZOffset(res.loc?.timeZone||loc.timeZone,1));if(tomorrow)saveCachedPrayer(loc,tomorrow.timings,tomorrow.date)}catch(error){console.warn('Tomorrow prayer times unavailable:',error)}
+    scheduleAdhan(res.loc||loc,res.timings,tomorrow?.timings||null)
+  }catch(error){const tz=loc.timeZone||'Asia/Amman',cached=loadCachedPrayer(loc,dateForTZ(tz)),tomorrow=loadCachedPrayer(loc,dateForTZOffset(tz,1));if(cached)scheduleAdhan(loc,cached,tomorrow)}
 }
 function startPrayerScheduler(){
   bindAdhanControls();
